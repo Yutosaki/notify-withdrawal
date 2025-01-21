@@ -1,15 +1,21 @@
 package main
 
 import (
+	"notify-withdrawal/repository"
+
+	"database/sql"
 	"fmt"
+
+	_ "github.com/lib/pq"
 )
 
-func getInitialBalance() int {
-	var balance int
-	fmt.Print("最初の貯金残高を入力してください: ")
-	fmt.Scan(&balance)
-	return balance
-}
+const (
+	host     = "your-db-host"
+	port     = 5432
+	user     = "your-db-user"
+	password = "your-db-password"
+	dbname   = "your-db-name"
+)
 
 func receiveEmail() string {
 	// メール受信処理（省略）
@@ -27,7 +33,16 @@ func sendEmail(message string) {
 }
 
 func main() {
-	balance := getInitialBalance()
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		fmt.Println("データベース接続に失敗しました:", err)
+		return
+	}
+	defer db.Close()
+
+	balance := repository.ChangeBalance(db)
 
 	for {
 		email := receiveEmail()
