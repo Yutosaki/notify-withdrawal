@@ -1,4 +1,4 @@
-package balance
+package repository
 
 import (
 	"database/sql"
